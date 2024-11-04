@@ -95,6 +95,14 @@ Streams the assistant's responses as plain text.
 
         AOAI_ASSISTANT_ID=your_azure_openai_assistant_id
 
+        AOAI_EMBEDDINGS_MODEL=your_embedding_model_deployment_name
+
+        AI_SEARCH_ENDPOINT=your_azure_ai_search_endpoint_uri
+
+        AI_SEARCH_KEY=your_azure_ai_search_service_key
+
+        AI_SEARCH_INDEX=your_target_index_name
+
         AZURE_OPENAI_API_VERSION=2024-02-15-preview  # Optional, default is "2024-02-15-preview"
         ```
 

@@ -101,7 +101,8 @@ async def run_assistant(request: RunAssistantRequest):
                     self.queue.put("<pre><code>")  
                 if tool_call.type == 'function':
                     if tool_call.function.name == 'retrieve_documents':
-                        self.queue.put('<i>Retrieving Documents...</i>\n')  
+                        # self.queue.put('<i>Retrieving Documents...</i><br>\n\n')  
+                        pass
 
   
             @override  
@@ -170,6 +171,7 @@ async def run_assistant(request: RunAssistantRequest):
                     tool_outputs = []
                     for tool_call in event.data.required_action.submit_tool_outputs.tool_calls:
                         args = json.loads(tool_call.function.arguments)
+                        self.queue.put(f'<i>Retrieving Documents...</i> {args} <br><br>\n\n') 
                         results = retrieve_documents(args['keywords'], args['document_count'])
                         tool_outputs.append({
                             "tool_call_id": tool_call.id,
