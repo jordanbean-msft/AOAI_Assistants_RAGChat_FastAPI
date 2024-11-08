@@ -162,3 +162,15 @@ cython_debug/
 #.idea/
 testing.ipynb
 scratch.ipynb
+
+**/.terraform/
+
+**/main.tfvars.json
+
+**/provider.conf.json
+
+.vscode/
+
+tfplan
+
+.venv/
