@@ -117,6 +117,19 @@ Streams the assistant's responses as plain text.
 3. **Access the API documentation:**
         Open your browser and go to [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs) to see the interactive API documentation provided by Swagger UI.
 
+
+## Deploy to Azure
+
+1. Make a copy of the `infra/sample-dev-main.tfvars.json` file, name it `main.tfvars.json` and update the values as needed.
+
+1. Run the following command to build & deploy the solution.
+
+   ```shell
+   azd up
+   ```
+
+   The endpoints for the `api` and `web` will be printed at the end of deployment.
+
 ## Contributing
 
 Contributions are welcome! Please open an issue or submit a pull request for any improvements or bug fixes.
