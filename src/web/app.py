@@ -2,13 +2,13 @@ import os
 import streamlit as st
 import requests
 
-with open('style.css', encoding='utf-8') as f:
-    st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html = True)
+#with open('style.css', encoding='utf-8') as f:
+#    st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html = True)
 
-st.image("logo.svg", width=192)
+#st.image("logo.svg", width=192)
 st.title("AI Assistant")
 
-base_url = os.getenv("API_URL")
+base_url = os.getenv("API_BASE_URL")
 
 def chat(thread_id, user_prompt):
     for event in requests.post(url=f"{base_url}/run_assistant",

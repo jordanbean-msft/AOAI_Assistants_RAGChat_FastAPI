@@ -349,7 +349,7 @@ module "container_app_environment" {
 # Deploy Container Apps
 # ------------------------------------------------------------------------------------------------------
 
-module "container_apps" {
+module "api_container_app" {
   source                          = "./modules/container_app"
   location                        = var.location
   resource_group_name             = var.resource_group_name
@@ -384,19 +384,16 @@ module "container_apps" {
           name                = local.azure_openai_secret_name,
           identity            = module.managed_identity.user_assigned_identity_id
           key_vault_secret_id = "${module.key_vault.azure_key_vault_endpoint}secrets/${local.azure_openai_secret_name}"
-
         },
         {
           name                = local.container_registry_admin_password_secret_name,
           identity            = module.managed_identity.user_assigned_identity_id
           key_vault_secret_id = "${module.key_vault.azure_key_vault_endpoint}secrets/${local.container_registry_admin_password_secret_name}"
-
         },
         {
           name                = local.azure_search_service_secret_name,
           identity            = module.managed_identity.user_assigned_identity_id
           key_vault_secret_id = "${module.key_vault.azure_key_vault_endpoint}secrets/${local.azure_search_service_secret_name}"
-
         }
       ]
       identity = {
@@ -489,7 +486,23 @@ module "container_apps" {
         min_replicas = 1
         max_replicas = 1
       }
-    },
+    }
+  ]
+}
+
+module "web_container_app" {
+  source                          = "./modules/container_app"
+  location                        = var.location
+  resource_group_name             = var.resource_group_name
+  tags                            = local.tags
+  resource_token                  = local.resource_token
+  container_app_environment_id    = module.container_app_environment.container_app_environment_id
+  log_analytics_workspace_id      = module.log_analytics.log_analytics_workspace_id
+  container_registry_login_server = module.container_registry.container_registry_login_server
+  container_registry_admin_username = module.container_registry.container_registry_admin_username
+  container_registry_admin_password_secret_name = local.container_registry_admin_password_secret_name
+  managed_identity_resource_id    = module.managed_identity.user_assigned_identity_id
+  container_apps = [
     {
       name                  = local.web_container_app_name
       tags                  = { "azd-service-name" : local.web_container_app_name }
@@ -527,6 +540,10 @@ module "container_apps" {
             cpu    = 4
             memory = "16Gi"
             env = concat([
+              {
+                name = "API_BASE_URL"
+                value = "https://${module.api_container_app.container_apps[local.api_container_app_name].ingress[0].fqdn}"
+              }
             ])
             liveness_probe = {
               initial_delay    = 30

@@ -40,7 +40,7 @@ resource "azurerm_cognitive_deployment" "chat" {
   }
   sku {
     name = "Standard"
-    capacity = 50
+    capacity = 40
   }
 }
 
@@ -54,7 +54,7 @@ resource "azurerm_cognitive_deployment" "embedding" {
   }
   sku {
     name = "Standard"
-    capacity = 50
+    capacity = 40
   }
 }
 
