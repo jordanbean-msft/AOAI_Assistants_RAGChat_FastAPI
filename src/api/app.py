@@ -47,9 +47,9 @@ def retrieve_documents(keywords:str, document_count: int) -> str:
     # Create a SearchClient object
     credential = AzureKeyCredential(search_key)
     client = SearchClient(endpoint=search_endpoint, index_name=index_name, credential=credential)
-    vector_queries = VectorizedQuery(vector=generate_embeddings(keywords, embedding_model), k_nearest_neighbors=document_count, fields="embeddings")
+    vector_queries = VectorizedQuery(vector=generate_embeddings(keywords, embedding_model), k_nearest_neighbors=document_count, fields="embedding")
     results = client.search(search_text=keywords, 
-                            select=['content', 'source_page', 'source_file'],
+                            select=['content', 'sourcepage', 'sourcefile'],
                             vector_queries=[vector_queries], 
                             top=document_count)
     

@@ -1,0 +1,18 @@
+name: apim-aoai-terraform-lz
+infra:
+  provider: terraform
+services:
+  api:
+    project: ./src/api
+    language: py
+    host: containerapp
+  web:
+    project: ./src/web
+    language: py
+    host: containerapp
+state:
+  remote:
+    backend: AzureBlobStorage
+    config:
+      accountName: saterraformeus2rjb
+      containerName: aoai-assistants-ragchat-fastapi
