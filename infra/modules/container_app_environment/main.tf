@@ -23,13 +23,13 @@ resource "azurecaf_name" "container_app_environment_name" {
 }
 
 resource "azurerm_container_app_environment" "managed_environment" {
-  name                           = azurecaf_name.container_app_environment_name.result
-  location                       = var.location
-  resource_group_name            = var.resource_group_name
-  log_analytics_workspace_id     = var.log_analytics_workspace_id
+  name                       = azurecaf_name.container_app_environment_name.result
+  location                   = var.location
+  resource_group_name        = var.resource_group_name
+  log_analytics_workspace_id = var.log_analytics_workspace_id
   #infrastructure_subnet_id       = var.container_apps_environment_subnet_id
   #internal_load_balancer_enabled = false
-  tags                           = var.tags
+  tags = var.tags
   workload_profile {
     name                  = var.workload_profile_name
     workload_profile_type = "D8"

@@ -10,10 +10,10 @@ output "vnet_id" {
 
 output "app_subnet_id" {
   description = "value of the app_subnet_id"
-  value       = "${data.azurerm_virtual_network.vnet.id}/subnets/${var.app_subnet_name}"
+  value       = var.app_subnet_name != "" ? "${data.azurerm_subnet.app_subnet[0].id}" : ""
 }
 
 output "private_endpoint_subnet_id" {
   description = "value of the private_endpoint_subnet_id"
-  value       = "${data.azurerm_virtual_network.vnet.id}/subnets/${var.private_endpoint_subnet_name}"
+  value       = var.private_endpoint_subnet_name != "" ? "${data.azurerm_subnet.private_endpoint_subnet[0].id}" : ""
 }

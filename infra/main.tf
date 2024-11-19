@@ -1,14 +1,14 @@
 locals {
-  tags                             = { azd-env-name : var.environment_name }
-  sha                              = base64encode(sha256("${var.location}${data.azurerm_client_config.current.subscription_id}${var.resource_group_name}"))
-  resource_token                   = substr(replace(lower(local.sha), "[^A-Za-z0-9_]", ""), 0, 13)
+  tags           = { azd-env-name : var.environment_name }
+  sha            = base64encode(sha256("${var.location}${data.azurerm_client_config.current.subscription_id}${var.resource_group_name}"))
+  resource_token = substr(replace(lower(local.sha), "[^A-Za-z0-9_]", ""), 0, 13)
   #app_subnet_nsg_name              = "nsg-${var.network.apim_subnet_name}-subnet"
   #private_endpoint_subnet_nsg_name = "nsg-${var.network.private_endpoint_subnet_name}-subnet"
-  api_container_app_name           = "api"
-  web_container_app_name           = "web"
-  default_container_app_image_name = "mcr.microsoft.com/k8se/quickstart:latest"
-  api_container_app_image_name     = coalesce(var.service_api_image_name, local.default_container_app_image_name)
-  web_container_app_image_name     = coalesce(var.service_web_image_name, local.default_container_app_image_name)
+  api_container_app_name                        = "api"
+  web_container_app_name                        = "web"
+  default_container_app_image_name              = "mcr.microsoft.com/k8se/quickstart:latest"
+  api_container_app_image_name                  = coalesce(var.service_api_image_name, local.default_container_app_image_name)
+  web_container_app_image_name                  = coalesce(var.service_web_image_name, local.default_container_app_image_name)
   container_registry_admin_password_secret_name = "container-registry-admin-password"
   azure_openai_secret_name                      = "azure-openai-key"
   azure_cognitive_services_secret_name          = "azure-cognitive-services-key"
@@ -18,6 +18,19 @@ locals {
 # ------------------------------------------------------------------------------------------------------
 # Deploy virtual network
 # ------------------------------------------------------------------------------------------------------
+
+module "virtual_network" {
+  source = "./modules/virtual_network"
+  location = var.location
+  resource_group_name = var.network.virtual_network_resource_group_name
+  tags = local.tags
+  resource_token = local.resource_token
+  virtual_network_name = var.network.virtual_network_name
+  app_subnet_name =  var.network.app_subnet_name
+  private_endpoint_subnet_name = var.network.private_endpoint_subnet_name
+  subnets = []
+  subscription_id = data.azurerm_client_config.current.subscription_id
+}
 
 /*module "virtual_network" {
   source               = "./modules/virtual_network"
@@ -234,7 +247,7 @@ module "key_vault" {
       name  = local.container_registry_admin_password_secret_name
       value = module.container_registry.container_registry_admin_password
     },
-     {
+    {
       name  = local.azure_openai_secret_name
       value = module.openai.azure_cognitive_services_key
     },
@@ -247,7 +260,8 @@ module "key_vault" {
       value = module.search_service.azure_search_service_apikey
     }
   ]
-  subnet_id = "" #module.virtual_network.private_endpoint_subnet_id
+  subnet_id                     = module.virtual_network.private_endpoint_subnet_id
+  public_network_access_enabled = var.network.public_network_access_enabled
 }
 
 # ------------------------------------------------------------------------------------------------------
@@ -259,10 +273,10 @@ module "openai" {
   resource_group_name              = var.resource_group_name
   resource_token                   = local.resource_token
   tags                             = local.tags
-  subnet_id                        = "" #module.virtual_network.private_endpoint_subnet_id
+  subnet_id                        = module.virtual_network.private_endpoint_subnet_id
   user_assigned_identity_object_id = module.managed_identity.user_assigned_identity_object_id
   log_analytics_workspace_id       = module.log_analytics.log_analytics_workspace_id
-  public_network_access_enabled = true
+  public_network_access_enabled    = var.network.public_network_access_enabled
 }
 
 # ------------------------------------------------------------------------------------------------------
@@ -275,10 +289,11 @@ module "storage_account" {
   resource_group_name           = var.resource_group_name
   tags                          = local.tags
   resource_token                = local.resource_token
-  subnet_id                     = "" #module.virtual_network.private_endpoint_subnet_id
+  subnet_id                     = module.virtual_network.private_endpoint_subnet_id
   account_tier                  = var.storage_account.tier
   account_replication_type      = var.storage_account.replication_type
   managed_identity_principal_id = module.managed_identity.user_assigned_identity_principal_id
+  public_network_access_enabled = var.network.public_network_access_enabled
 }
 
 # ------------------------------------------------------------------------------------------------------
@@ -291,8 +306,9 @@ module "container_registry" {
   resource_group_name           = var.resource_group_name
   tags                          = local.tags
   resource_token                = local.resource_token
-  subnet_id                     = "" #module.virtual_network.private_endpoint_subnet_id
+  subnet_id                     = module.virtual_network.private_endpoint_subnet_id
   managed_identity_principal_id = module.managed_identity.user_assigned_identity_principal_id
+  public_network_access_enabled = var.network.public_network_access_enabled
 }
 
 # ------------------------------------------------------------------------------------------------------
@@ -305,9 +321,9 @@ module "document_intelligence" {
   resource_group_name           = var.resource_group_name
   tags                          = local.tags
   resource_token                = local.resource_token
-  subnet_id                     = "" #module.virtual_network.private_endpoint_subnet_id
+  subnet_id                     = module.virtual_network.private_endpoint_subnet_id
   managed_identity_principal_id = module.managed_identity.user_assigned_identity_principal_id
-  public_network_access_enabled = true
+  public_network_access_enabled = var.network.public_network_access_enabled
 }
 
 # ------------------------------------------------------------------------------------------------------
@@ -320,9 +336,9 @@ module "search_service" {
   resource_group_name           = var.resource_group_name
   tags                          = local.tags
   resource_token                = local.resource_token
-  subnet_id                     = "" #module.virtual_network.private_endpoint_subnet_id
+  subnet_id                     = module.virtual_network.private_endpoint_subnet_id
   managed_identity_principal_id = module.managed_identity.user_assigned_identity_principal_id
-  public_network_access_enabled = true
+  public_network_access_enabled = var.network.public_network_access_enabled
 }
 
 # ------------------------------------------------------------------------------------------------------
@@ -336,7 +352,7 @@ module "container_app_environment" {
   tags                                       = local.tags
   resource_token                             = local.resource_token
   app_insights_connection_string             = module.application_insights.application_insights_connection_string
-  container_apps_environment_subnet_id       = "" #module.virtual_network.private_endpoint_subnet_id
+  container_apps_environment_subnet_id       = module.virtual_network.app_subnet_id
   file_share_name                            = module.storage_account.file_share_name
   log_analytics_workspace_id                 = module.log_analytics.log_analytics_workspace_id
   log_analytics_workspace_customer_id        = module.log_analytics.log_analytics_workspace_customer_id
@@ -350,17 +366,17 @@ module "container_app_environment" {
 # ------------------------------------------------------------------------------------------------------
 
 module "api_container_app" {
-  source                          = "./modules/container_app"
-  location                        = var.location
-  resource_group_name             = var.resource_group_name
-  tags                            = local.tags
-  resource_token                  = local.resource_token
-  container_app_environment_id    = module.container_app_environment.container_app_environment_id
-  log_analytics_workspace_id      = module.log_analytics.log_analytics_workspace_id
-  container_registry_login_server = module.container_registry.container_registry_login_server
-  container_registry_admin_username = module.container_registry.container_registry_admin_username
+  source                                        = "./modules/container_app"
+  location                                      = var.location
+  resource_group_name                           = var.resource_group_name
+  tags                                          = local.tags
+  resource_token                                = local.resource_token
+  container_app_environment_id                  = module.container_app_environment.container_app_environment_id
+  log_analytics_workspace_id                    = module.log_analytics.log_analytics_workspace_id
+  container_registry_login_server               = module.container_registry.container_registry_login_server
+  container_registry_admin_username             = module.container_registry.container_registry_admin_username
   container_registry_admin_password_secret_name = local.container_registry_admin_password_secret_name
-  managed_identity_resource_id    = module.managed_identity.user_assigned_identity_id
+  managed_identity_resource_id                  = module.managed_identity.user_assigned_identity_id
   container_apps = [
     {
       name                  = local.api_container_app_name
@@ -368,7 +384,7 @@ module "api_container_app" {
       revision_mode         = "Single"
       workload_profile_name = module.container_app_environment.workload_profile_name
       ingress = {
-        external_enabled = true
+        external_enabled = var.network.public_network_access_enabled
         target_port      = 3100
         transport        = "http"
         traffic_weight = [
@@ -380,7 +396,7 @@ module "api_container_app" {
         ]
       }
       secrets = [
-         {
+        {
           name                = local.azure_openai_secret_name,
           identity            = module.managed_identity.user_assigned_identity_id
           key_vault_secret_id = "${module.key_vault.azure_key_vault_endpoint}secrets/${local.azure_openai_secret_name}"
@@ -413,19 +429,19 @@ module "api_container_app" {
                 secret_name = local.azure_openai_secret_name
               },
               {
-                name = "AI_SEARCH_KEY"
+                name        = "AI_SEARCH_KEY"
                 secret_name = local.azure_search_service_secret_name
               },
               {
-                name = "AI_SEARCH_ENDPOINT"
+                name  = "AI_SEARCH_ENDPOINT"
                 value = module.search_service.azure_search_service_endpoint
               },
               {
-                name = "AI_SEARCH_INDEX"
+                name  = "AI_SEARCH_INDEX"
                 value = var.ai_search.index_name
               },
               {
-                name = "AOAI_ASSISTANT_ID"
+                name  = "AOAI_ASSISTANT_ID"
                 value = var.openai.assistant_id
               },
               {
@@ -491,17 +507,17 @@ module "api_container_app" {
 }
 
 module "web_container_app" {
-  source                          = "./modules/container_app"
-  location                        = var.location
-  resource_group_name             = var.resource_group_name
-  tags                            = local.tags
-  resource_token                  = local.resource_token
-  container_app_environment_id    = module.container_app_environment.container_app_environment_id
-  log_analytics_workspace_id      = module.log_analytics.log_analytics_workspace_id
-  container_registry_login_server = module.container_registry.container_registry_login_server
-  container_registry_admin_username = module.container_registry.container_registry_admin_username
+  source                                        = "./modules/container_app"
+  location                                      = var.location
+  resource_group_name                           = var.resource_group_name
+  tags                                          = local.tags
+  resource_token                                = local.resource_token
+  container_app_environment_id                  = module.container_app_environment.container_app_environment_id
+  log_analytics_workspace_id                    = module.log_analytics.log_analytics_workspace_id
+  container_registry_login_server               = module.container_registry.container_registry_login_server
+  container_registry_admin_username             = module.container_registry.container_registry_admin_username
   container_registry_admin_password_secret_name = local.container_registry_admin_password_secret_name
-  managed_identity_resource_id    = module.managed_identity.user_assigned_identity_id
+  managed_identity_resource_id                  = module.managed_identity.user_assigned_identity_id
   container_apps = [
     {
       name                  = local.web_container_app_name
@@ -509,7 +525,7 @@ module "web_container_app" {
       revision_mode         = "Single"
       workload_profile_name = module.container_app_environment.workload_profile_name
       ingress = {
-        external_enabled = true
+        external_enabled = var.network.public_network_access_enabled
         target_port      = 8501
         transport        = "http"
         traffic_weight = [
@@ -541,7 +557,7 @@ module "web_container_app" {
             memory = "16Gi"
             env = concat([
               {
-                name = "API_BASE_URL"
+                name  = "API_BASE_URL"
                 value = "https://${module.api_container_app.container_apps[local.api_container_app_name].ingress[0].fqdn}"
               }
             ])

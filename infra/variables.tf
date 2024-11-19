@@ -27,6 +27,7 @@ variable "network" {
     private_endpoint_subnet_address_prefixes = list(string)
     app_subnet_name                          = string
     app_subnet_address_prefixes              = list(string)
+    public_network_access_enabled            = bool
   })
 }
 

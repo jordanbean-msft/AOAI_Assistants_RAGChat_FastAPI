@@ -27,8 +27,8 @@ resource "azurerm_storage_account" "storage_account" {
   account_tier                    = var.account_tier
   account_replication_type        = var.account_replication_type
   tags                            = var.tags
-  public_network_access_enabled   = true
-  allow_nested_items_to_be_public = true
+  public_network_access_enabled   = var.public_network_access_enabled
+  allow_nested_items_to_be_public = var.public_network_access_enabled
 }
 
 resource "azurerm_storage_share" "file_share" {

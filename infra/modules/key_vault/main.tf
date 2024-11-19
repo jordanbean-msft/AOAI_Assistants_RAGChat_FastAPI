@@ -30,10 +30,10 @@ resource "azurerm_key_vault" "kv" {
   purge_protection_enabled        = false
   sku_name                        = "standard"
   tags                            = var.tags
-  public_network_access_enabled   = true
+  public_network_access_enabled   = var.public_network_access_enabled
   enabled_for_deployment          = true
   enabled_for_template_deployment = true
-  enable_rbac_authorization       = false
+  enable_rbac_authorization       = true
 }
 
 resource "azurerm_key_vault_secret" "secrets" {
@@ -57,29 +57,43 @@ module "private_endpoint" {
   is_manual_connection           = false
 }
 
-resource "azurerm_key_vault_access_policy" "app" {
-  count        = length(var.access_policy_object_ids)
-  key_vault_id = azurerm_key_vault.kv.id
-  tenant_id    = data.azurerm_client_config.current.tenant_id
-  object_id    = var.access_policy_object_ids[count.index]
-
-  secret_permissions = [
-    "Get",
-    "List",
-  ]
+resource "azurerm_role_assignment" "key_vault_secrets_user_role_assignment" {
+  count                = length(var.access_policy_object_ids)
+  scope                = azurerm_key_vault.kv.id
+  role_definition_name = "Key Vault Secrets User"
+  principal_id         = var.access_policy_object_ids[count.index]
 }
 
-resource "azurerm_key_vault_access_policy" "user" {
-  count        = var.principal_id == "" ? 0 : 1
-  key_vault_id = azurerm_key_vault.kv.id
-  tenant_id    = data.azurerm_client_config.current.tenant_id
-  object_id    = var.principal_id
-
-  secret_permissions = [
-    "Get",
-    "Set",
-    "List",
-    "Delete",
-    "Purge"
-  ]
+resource "azurerm_role_assignment" "key_vault_secrets_officer_role_assignment" {
+  scope                = azurerm_key_vault.kv.id
+  role_definition_name = "Key Vault Secrets Officer"
+  principal_id         = var.principal_id
 }
+
+# resource "azurerm_key_vault_access_policy" "app" {
+#   count        = length(var.access_policy_object_ids)
+#   key_vault_id = azurerm_key_vault.kv.id
+#   tenant_id    = data.azurerm_client_config.current.tenant_id
+#   object_id    = var.access_policy_object_ids[count.index]
+
+#   secret_permissions = [
+#     "Get",
+#     "List",
+#   ]
+# }
+
+# resource "azurerm_key_vault_access_policy" "user" {
+#   count        = var.principal_id == "" ? 0 : 1
+#   key_vault_id = azurerm_key_vault.kv.id
+#   tenant_id    = data.azurerm_client_config.current.tenant_id
+#   object_id    = var.principal_id
+
+#   secret_permissions = [
+#     "Get",
+#     "Set",
+#     "List",
+#     "Delete",
+#     "Purge"
+#   ]
+# }
+# 

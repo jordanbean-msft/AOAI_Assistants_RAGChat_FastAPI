@@ -37,3 +37,9 @@ variable "managed_identity_principal_id" {
   description = "The principal id of the managed identity"
   type        = string
 }
+
+variable "public_network_access_enabled" {
+  description = "Controls if public network access is allowed for the key vault"
+  type        = bool
+  default     = true
+}

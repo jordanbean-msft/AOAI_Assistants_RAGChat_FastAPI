@@ -27,7 +27,7 @@ resource "azurerm_container_registry" "container_registry" {
   resource_group_name           = var.resource_group_name
   sku                           = "Premium"
   admin_enabled                 = true
-  public_network_access_enabled = true
+  public_network_access_enabled = var.public_network_access_enabled
   anonymous_pull_enabled        = false
   network_rule_bypass_option    = "AzureServices"
 }
@@ -39,7 +39,7 @@ resource "azurerm_role_assignment" "managed_identity_acr_role" {
 }
 
 module "private_endpoint" {
-  count = var.subnet_id != "" ? 1 : 0
+  count                          = var.subnet_id != "" ? 1 : 0
   source                         = "../private_endpoint"
   name                           = azurerm_container_registry.container_registry.name
   resource_group_name            = var.resource_group_name

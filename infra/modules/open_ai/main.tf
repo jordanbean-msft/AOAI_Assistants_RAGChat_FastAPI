@@ -39,7 +39,7 @@ resource "azurerm_cognitive_deployment" "chat" {
     version = "2024-05-13"
   }
   sku {
-    name = "Standard"
+    name     = "Standard"
     capacity = 40
   }
 }
@@ -53,7 +53,7 @@ resource "azurerm_cognitive_deployment" "embedding" {
     version = "2"
   }
   sku {
-    name = "Standard"
+    name     = "Standard"
     capacity = 40
   }
 }
