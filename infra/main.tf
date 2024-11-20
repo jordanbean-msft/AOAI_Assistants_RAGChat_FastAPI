@@ -272,6 +272,31 @@ module "openai" {
   user_assigned_identity_object_id = module.managed_identity.user_assigned_identity_object_id
   log_analytics_workspace_id       = module.log_analytics.log_analytics_workspace_id
   public_network_access_enabled    = var.network.public_network_access_enabled
+  sku = var.openai.sku
+  chat_deployment = {
+    name = var.openai.chat_deployment.name
+    model = {
+      format  = var.openai.chat_deployment.model.format
+      name    = var.openai.chat_deployment.model.name
+      version = var.openai.chat_deployment.model.version
+    }
+    sku = {
+      name     = var.openai.chat_deployment.sku.name
+      capacity = var.openai.chat_deployment.sku.capacity
+    }
+  }
+  embedding_deployment = {
+    name = var.openai.embedding_deployment.name
+    model = {
+      format  = var.openai.embedding_deployment.model.format
+      name    = var.openai.embedding_deployment.model.name
+      version = var.openai.embedding_deployment.model.version
+    }
+    sku = {
+      name     = var.openai.embedding_deployment.sku.name
+      capacity = var.openai.embedding_deployment.sku.capacity
+    }
+  }
 }
 
 # ------------------------------------------------------------------------------------------------------

@@ -34,6 +34,31 @@ variable "network" {
 variable "openai" {
   type = object({
     assistant_id = string
+    sku          = string
+    chat_deployment = object({
+      name = string
+      model = object({
+        format  = string
+        name    = string
+        version = string
+      })
+      sku = object({
+        name     = string
+        capacity = number
+      })
+    })
+    embedding_deployment = object({
+      name = string
+      model = object({
+        format  = string
+        name    = string
+        version = string
+      })
+      sku = object({
+        name     = string
+        capacity = number
+      })
+    })
   })
 }
 

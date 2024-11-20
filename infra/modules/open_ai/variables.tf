@@ -37,3 +37,40 @@ variable "public_network_access_enabled" {
   description = "Whether or not public network access is enabled"
   type        = bool
 }
+
+variable "sku" {
+  description = "The SKU of the cognitive account"
+  type        = string
+}
+
+variable "chat_deployment" {
+  description = "The chat deployment configuration"
+  type = object({
+    name = string
+    model = object({
+      format  = string
+      name    = string
+      version = string
+    })
+    sku = object({
+      name     = string
+      capacity = number
+    })
+  })
+}
+
+variable "embedding_deployment" {
+  description = "The embedding deployment configuration"
+  type = object({
+    name = string
+    model = object({
+      format  = string
+      name    = string
+      version = string
+    })
+    sku = object({
+      name     = string
+      capacity = number
+    })
+  })
+}

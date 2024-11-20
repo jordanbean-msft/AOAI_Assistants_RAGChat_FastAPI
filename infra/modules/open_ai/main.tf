@@ -25,52 +25,51 @@ resource "azurerm_cognitive_account" "cognitive_account" {
   location                      = var.location
   resource_group_name           = var.resource_group_name
   kind                          = "OpenAI"
-  sku_name                      = "S0"
+  sku_name                      = var.sku
   custom_subdomain_name         = azurecaf_name.cognitiveservices_name.result
   public_network_access_enabled = var.public_network_access_enabled
 }
 
 resource "azurerm_cognitive_deployment" "chat" {
-  name                 = "chat"
+  name                 = var.chat_deployment.name
   cognitive_account_id = azurerm_cognitive_account.cognitive_account.id
   model {
-    format  = "OpenAI"
-    name    = "gpt-4o"
-    version = "2024-05-13"
+    format  = var.chat_deployment.model.format
+    name    = var.chat_deployment.model.name
+    version = var.chat_deployment.model.version
   }
   sku {
-    name     = "Standard"
-    capacity = 40
+    name     = var.chat_deployment.sku.name
+    capacity = var.chat_deployment.sku.capacity
   }
 }
 
 resource "azurerm_cognitive_deployment" "embedding" {
-  name                 = "embedding"
+  name                 = var.embedding_deployment.name
   cognitive_account_id = azurerm_cognitive_account.cognitive_account.id
   model {
-    format  = "OpenAI"
-    name    = "text-embedding-ada-002"
-    version = "2"
+    format  = var.embedding_deployment.model.format
+    name    = var.embedding_deployment.model.name
+    version = var.embedding_deployment.model.version
   }
   sku {
-    name     = "Standard"
-    capacity = 40
+    name     = var.embedding_deployment.sku.name
+    capacity = var.embedding_deployment.sku.capacity
   }
 }
 
-# module "private_endpoint" {
-#   for_each                       = { for deployment in var.openai_model_deployments : deployment.name_suffix => deployment }
-#   source                         = "../private_endpoint"
-#   name                           = azurerm_cognitive_account.cognitive_account[each.key].name
-#   resource_group_name            = var.resource_group_name
-#   tags                           = var.tags
-#   resource_token                 = var.resource_token
-#   private_connection_resource_id = azurerm_cognitive_account.cognitive_account[each.key].id
-#   location                       = each.value.location
-#   subnet_id                      = var.subnet_id
-#   subresource_names              = ["account"]
-#   is_manual_connection           = false
-# }
+module "private_endpoint" {
+  source                         = "../private_endpoint"
+  name                           = azurerm_cognitive_account.cognitive_account.name
+  resource_group_name            = var.resource_group_name
+  tags                           = var.tags
+  resource_token                 = var.resource_token
+  private_connection_resource_id = azurerm_cognitive_account.cognitive_account.id
+  location                       = var.location
+  subnet_id                      = var.subnet_id
+  subresource_names              = ["account"]
+  is_manual_connection           = false
+}
 
 resource "azurerm_monitor_diagnostic_setting" "openai_logging" {
   name                       = "openai-logging"
