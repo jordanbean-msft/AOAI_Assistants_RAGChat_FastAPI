@@ -33,15 +33,15 @@ variable "container_app_environment_id" {
   type        = string
 }
 
-variable "container_registry_admin_username" {
-  description = "The container registry admin username."
-  type        = string
-}
+# variable "container_registry_admin_username" {
+#   description = "The container registry admin username."
+#   type        = string
+# }
 
-variable "container_registry_admin_password_secret_name" {
-  description = "The container registry admin password secret name."
-  type        = string
-}
+# variable "container_registry_admin_password_secret_name" {
+#   description = "The container registry admin password secret name."
+#   type        = string
+# }
 
 variable "container_apps" {
   description = "Specifies the container apps in the managed environment."
@@ -115,9 +115,6 @@ variable "container_apps" {
           timeout          = optional(number)
           transport        = string
         }))
-        min_replicas    = optional(number)
-        max_replicas    = optional(number)
-        revision_suffix = optional(string)
       }))
       volume = optional(list(object({
         name         = string
@@ -128,6 +125,9 @@ variable "container_apps" {
         name                = string
         concurrent_requests = number
       })))
+      min_replicas    = optional(number)
+      max_replicas    = optional(number)
+      revision_suffix = optional(string)
     })
   }))
 }

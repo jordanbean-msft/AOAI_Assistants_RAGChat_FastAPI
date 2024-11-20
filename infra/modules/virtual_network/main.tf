@@ -42,21 +42,21 @@ data "azurerm_virtual_network" "vnet" {
 # }
 
 data "azurerm_subnet" "private_endpoint_subnet" {
-  count = var.private_endpoint_subnet_name != "" ? 1 : 0
+  count                = var.private_endpoint_subnet_name != "" ? 1 : 0
   name                 = var.private_endpoint_subnet_name
   virtual_network_name = var.virtual_network_name
   resource_group_name  = var.resource_group_name
 }
 
 data "azurerm_subnet" "app_subnet" {
-  count = var.app_subnet_name != "" ? 1 : 0
+  count                = var.app_subnet_name != "" ? 1 : 0
   name                 = var.app_subnet_name
   virtual_network_name = var.virtual_network_name
   resource_group_name  = var.resource_group_name
 }
 
 resource "azapi_update_resource" "service_endpoint_delegation" {
-  count = var.app_subnet_name != "" ? 1 : 0
+  count       = var.app_subnet_name != "" ? 1 : 0
   type        = "Microsoft.Network/virtualNetworks/subnets@2024-03-01"
   resource_id = data.azurerm_subnet.app_subnet[0].id
 
@@ -67,7 +67,7 @@ resource "azapi_update_resource" "service_endpoint_delegation" {
           name = "Microsoft.App/environments"
           properties = {
             serviceName = "Microsoft.App/environments"
-            actions     = ["Microsoft.Network/virtualNetworks/subnets/action"]
+            actions     = ["Microsoft.Network/virtualNetworks/subnets/join/action"]
           }
         }
       ]

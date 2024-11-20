@@ -23,9 +23,10 @@ resource "azurerm_container_app" "container_app" {
   tags                         = merge(var.tags, each.value.tags)
   revision_mode                = each.value.revision_mode
   registry {
-    server               = var.container_registry_login_server
-    username             = var.container_registry_admin_username
-    password_secret_name = var.container_registry_admin_password_secret_name
+    server = var.container_registry_login_server
+    #username             = var.container_registry_admin_username
+    #password_secret_name = var.container_registry_admin_password_secret_name
+    identity = var.managed_identity_resource_id
   }
   workload_profile_name = each.value.workload_profile_name
   template {

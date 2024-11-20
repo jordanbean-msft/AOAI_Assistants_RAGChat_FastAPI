@@ -23,18 +23,18 @@ resource "azurecaf_name" "container_app_environment_name" {
 }
 
 resource "azurerm_container_app_environment" "managed_environment" {
-  name                       = azurecaf_name.container_app_environment_name.result
-  location                   = var.location
-  resource_group_name        = var.resource_group_name
-  log_analytics_workspace_id = var.log_analytics_workspace_id
-  #infrastructure_subnet_id       = var.container_apps_environment_subnet_id
-  #internal_load_balancer_enabled = false
-  tags = var.tags
+  name                           = azurecaf_name.container_app_environment_name.result
+  location                       = var.location
+  resource_group_name            = var.resource_group_name
+  log_analytics_workspace_id     = var.log_analytics_workspace_id
+  infrastructure_subnet_id       = var.container_apps_environment_subnet_id
+  internal_load_balancer_enabled = false
+  tags                           = var.tags
   workload_profile {
-    name                  = var.workload_profile_name
-    workload_profile_type = "D8"
-    minimum_count         = 1
-    maximum_count         = 1
+    name                  = var.workload_profile.name
+    workload_profile_type = var.workload_profile.workload_profile_type
+    minimum_count         = var.workload_profile.minimum_count
+    maximum_count         = var.workload_profile.maximum_count
   }
   lifecycle {
     ignore_changes = [

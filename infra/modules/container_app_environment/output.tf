@@ -5,7 +5,7 @@ output "container_app_environment_id" {
 
 output "workload_profile_name" {
   description = "Specifies the name of the workload profile."
-  value       = var.workload_profile_name
+  value       = var.workload_profile.name
 }
 
 output "container_app_environment_storage_name" {

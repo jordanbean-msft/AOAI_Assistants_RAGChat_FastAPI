@@ -28,10 +28,14 @@ variable "container_apps_environment_subnet_id" {
   type        = string
 }
 
-variable "workload_profile_name" {
-  description = "The name of the workload profile to use."
-  type        = string
-  default     = "api"
+variable "workload_profile" {
+  description = "Specifies the workload profile to use."
+  type = object({
+    name                  = string
+    workload_profile_type = string
+    minimum_count         = number
+    maximum_count         = number
+  })
 }
 
 variable "storage_account_name" {
