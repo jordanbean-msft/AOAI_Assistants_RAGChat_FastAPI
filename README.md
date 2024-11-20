@@ -1,5 +1,7 @@
 # Azure OpenAI - FastAPI Assistants Wrapper with Streaming
 
+![architecture](./architecture.drawio.svg)
+
 # FastAPI Azure OpenAI Assistant - RAG Chat
   
 This FastAPI application provides a set of endpoints to interact with an Azure OpenAI assistant to chat with a RAG store (Azure AI Search index). It allows you to create threads, upload files, and run the assistant, streaming the responses back to the client in real-time. This FastAPI app can be containerized using the `Dockerfile` from this repository and deployed to a container hosting service like Azure Container Apps or Azure Container Instances.
