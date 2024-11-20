@@ -124,6 +124,8 @@ Streams the assistant's responses as plain text.
 
 1. Make a copy of the `infra/sample-dev-main.tfvars.json` file, name it `main.tfvars.json` and update the values as needed.
 
+    **NOTE**: By default, all services will deploy with public networking turned on. If you want to have the services deploy into an existing virtual network, specify the existing network values in the `network` section of the `main.tfvars.json` file.
+
 1. Run the following command to build & deploy the solution.
 
    ```shell
